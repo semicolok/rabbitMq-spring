@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+	xmlns:int-amqp="http://www.springframework.org/schema/integration/amqp"
+	xsi:schemaLocation="http://www.springframework.org/schema/integration/amqp http://www.springframework.org/schema/integration/amqp/spring-integration-amqp-2.1.xsd
+		http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/rabbit http://www.springframework.org/schema/rabbit/spring-rabbit-1.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <rabbit:connection-factory id="connectionFactory"/>
+    <rabbit:template id="amqpTemplate" connection-factory="connectionFactory"/>
+    <rabbit:admin connection-factory="connectionFactory"/>
+    
+    <!-- Queues -->
+    <rabbit:queue id="queue1" name="queue.1.name"/>
+    <rabbit:queue id="queue2" name="queue.2.name"/>
+
+    <!-- Exchanges -->
+    <rabbit:fanout-exchange name="fanout.exchange.1.name">
+        <rabbit:bindings>
+            <rabbit:binding queue="queue1"/>
+            <rabbit:binding queue="queue2"/>
+        </rabbit:bindings>
+    </rabbit:fanout-exchange>
+
+    <int:publish-subscribe-channel id="fanoutChannel" />
+ 
+    <int-amqp:outbound-channel-adapter channel="fanoutChannel" amqp-template="amqpTemplate" exchange-name="fanout.exchange.1.name"/>
+</beans>
